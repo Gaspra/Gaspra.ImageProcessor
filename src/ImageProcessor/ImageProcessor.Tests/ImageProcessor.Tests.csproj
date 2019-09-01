@@ -7,9 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Asset\example.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Asset\example.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImageProcessor\ImageProcessor.csproj" />
   </ItemGroup>
 
 </Project>

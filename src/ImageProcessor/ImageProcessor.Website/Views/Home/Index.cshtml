@@ -1,0 +1,25 @@
+﻿<div class="text-center">
+    <h1 class="display-4">Image Processor</h1>
+    <p>Request Images.</p>
+
+@using (Html.BeginForm("Index", "Image"))
+{
+<fieldset>
+    <legend>Image</legend>
+
+    <div>
+        <label for="Height">Height:</label>
+        <input type="number" name="Height" value="" />
+    </div>
+
+    <div>
+        <label for="Width">Width:</label>
+        <input type="number" name="Width" value="" />
+    </div>
+
+
+    <input type="submit"
+           value="Request Image" />
+</fieldset>
+}
+</div>
