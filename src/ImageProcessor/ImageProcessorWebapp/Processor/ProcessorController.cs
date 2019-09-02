@@ -41,6 +41,7 @@ namespace ImageProcessorWebapp.Processor
                 var values = splitPart.Split('=');
 
                 var key = values[0].ToLower();
+
                 var value = values[1];
 
                 requestDictionary.Add(key, value);

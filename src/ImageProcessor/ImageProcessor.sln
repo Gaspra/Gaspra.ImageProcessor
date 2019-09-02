@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessor", "ImageProcessor\ImageProcessor.csproj", "{F27FD1F7-43A3-44E0-8F99-D9CD49EA4022}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessor.Tests", "ImageProcessor.Tests\ImageProcessor.Tests.csproj", "{98BAA1E4-33D7-4E41-9480-8958E08C1BB3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessorTests", "ImageProcessor.Tests\ImageProcessorTests.csproj", "{98BAA1E4-33D7-4E41-9480-8958E08C1BB3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessorWebapp", "ImageProcessorWebapp\ImageProcessorWebapp.csproj", "{FCB276E0-C644-48E8-982D-97C53C40938D}"
 EndProject
