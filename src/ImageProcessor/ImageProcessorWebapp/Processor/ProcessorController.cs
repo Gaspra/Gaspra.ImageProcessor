@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 using ImageProcessor.Models;
 using ImageProcessor.Process;
 using ImageProcessorWebapp.Models;
 using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 namespace ImageProcessorWebapp.Processor
 {
@@ -91,7 +86,7 @@ namespace ImageProcessorWebapp.Processor
 
             var sanitizedFileName = Path.GetFileNameWithoutExtension(fileName);
 
-            maltImage.RawImage.Save($"{outputPath}{sanitizedFileName}.{format}");
+            maltImage.RawImage.Save($"{outputPath}{sanitizedFileName}_{maltImage.ToString()}.{format}");
         }
 
         private IDictionary<string, string> QueryStringToDictionary(string queryString)

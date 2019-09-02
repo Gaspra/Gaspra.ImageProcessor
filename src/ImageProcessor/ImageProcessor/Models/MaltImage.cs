@@ -30,5 +30,10 @@ namespace ImageProcessor.Models
         {
             RawImage.Dispose();
         }
+
+        public override string ToString()
+        {
+            return Guid.NewGuid().ToString();
+        }
     }
 }

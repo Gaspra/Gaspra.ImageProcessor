@@ -9,40 +9,40 @@ namespace ImageProcessor.Tests
     [TestClass]
     public class ImageProcessTests
     {
-        [TestMethod]
-        public void TestProcess()
-        {
-            var resolution = new Resolution
-            {
-                Width = 567,
-                Height = 1024
-            };
+        //[TestMethod]
+        //public void TestProcess()
+        //{
+        //    var resolution = new Resolution
+        //    {
+        //        Width = 567,
+        //        Height = 1024
+        //    };
 
-            var assetPath = $"{Directory.GetCurrentDirectory()}/Asset/example.png";
+        //    var assetPath = $"{Directory.GetCurrentDirectory()}/Asset/example.png";
 
-            var outputPath = $"{Directory.GetCurrentDirectory()}/Asset/output.png";
+        //    var outputPath = $"{Directory.GetCurrentDirectory()}/Asset/output.png";
 
-            Begin(assetPath, outputPath, resolution);
-        }
+        //    Begin(assetPath, outputPath, resolution);
+        //}
 
-        public void Begin(
-                string file,
-                string output,
-                Resolution resolution)
-        {
-            var maltImage = new MaltImage(resolution, null, null);
+        //public void Begin(
+        //        string file,
+        //        string output,
+        //        Resolution resolution)
+        //{
+        //    var maltImage = new MaltImage(resolution, null, null);
 
-            maltImage.LoadImage(file);
+        //    maltImage.LoadImage(file);
 
-            var resProcessor = new ResolutionProcessor();
+        //    var resProcessor = new ResolutionProcessor();
 
-            if (resProcessor.Should(maltImage))
-            {
-                resProcessor.Execute(maltImage);
-            }
+        //    if (resProcessor.Should(maltImage))
+        //    {
+        //        resProcessor.Execute(maltImage);
+        //    }
 
-            maltImage.RawImage.Save(output);
-        }
+        //    maltImage.RawImage.Save(output);
+        //}
 
     }
 }
