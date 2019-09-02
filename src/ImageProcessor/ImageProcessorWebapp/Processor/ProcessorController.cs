@@ -1,15 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using ImageProcessor.Models;
+using ImageProcessor.Process;
 using ImageProcessorWebapp.Models;
 using Microsoft.AspNetCore.Mvc;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace ImageProcessorWebapp.Processor
 {
     public class ProcessorController : Controller
     {
+        private readonly IProductImages ProductImages;
+        private readonly IEnumerable<IImageProcessor> ImageProcessors;
+
+        public ProcessorController(
+            IProductImages productImages,
+            IEnumerable<IImageProcessor> imageProcessors)
+        {
+            ProductImages = productImages ?? throw new ArgumentNullException(nameof(productImages));
+            ImageProcessors = imageProcessors ?? throw new ArgumentNullException(nameof(productImages));
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -17,13 +36,62 @@ namespace ImageProcessorWebapp.Processor
 
         public string Image()
         {
-            //todo: check query string is well formed
-
+            /*
+                query string / build image
+            */
             var requestDictionary = QueryStringToDictionary(Request.QueryString.ToString());
 
             var imageRequest = ImageRequest.From(requestDictionary);
 
-            return $"returning image after request with: {string.Join(", ", requestDictionary.Values)}";
+            var maltImage = new MaltImage(new Resolution() { Height = imageRequest.Height, Width = imageRequest.Width }, null, null);
+
+            // check cache for the image before loading it
+            maltImage.LoadImage(ProductImages.GetImageDirectory() + imageRequest.ImageName);
+
+            /*
+                process image
+            */
+            foreach (var imageProcessor in ImageProcessors)
+            {
+                if (imageProcessor.Should(maltImage))
+                {
+                    imageProcessor.Execute(maltImage);
+                }
+            }
+
+            /*
+                save image to disk
+            */
+            if (requestDictionary.ContainsKey("download") &&
+                bool.Parse(requestDictionary["download"]))
+            {
+                SaveImage(maltImage, imageRequest.ImageName, requestDictionary["imageformat"]);
+            }
+
+            /*
+                return image
+            */
+            using (MemoryStream m = new MemoryStream())
+            {
+                maltImage.RawImage.Save(m, new PngEncoder());
+
+                byte[] imageBytes = m.ToArray();
+
+                string base64String = Convert.ToBase64String(imageBytes);
+
+                return base64String;
+            }
+        }
+
+        private void SaveImage(MaltImage maltImage, string fileName, string format)
+        {
+            var outputPath = $"{ProductImages.GetImageDirectory()}/output/";
+
+            Directory.CreateDirectory(outputPath);
+
+            var sanitizedFileName = Path.GetFileNameWithoutExtension(fileName);
+
+            maltImage.RawImage.Save($"{outputPath}{sanitizedFileName}.{format}");
         }
 
         private IDictionary<string, string> QueryStringToDictionary(string queryString)

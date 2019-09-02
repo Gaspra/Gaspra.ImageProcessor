@@ -10,7 +10,8 @@ namespace ImageProcessor
             collection
                 .AddTransient<IImageProcessor, ResolutionProcessor>()
                 .AddTransient<IImageProcessor, BackgroundProcessor>()
-                .AddTransient<IImageProcessor, WatermarkProcessor>();
+                //.AddTransient<IImageProcessor, WatermarkProcessor>()
+                ;
 
             return collection;
         }

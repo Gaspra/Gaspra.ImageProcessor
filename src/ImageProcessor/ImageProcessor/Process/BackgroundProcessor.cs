@@ -1,7 +1,7 @@
 ﻿using ImageProcessor.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace ImageProcessor.Process
 {
@@ -9,12 +9,12 @@ namespace ImageProcessor.Process
     {
         public void Execute(MaltImage maltImage)
         {
-            throw new NotImplementedException();
+
         }
 
         public bool Should(MaltImage maltImage)
         {
-            throw new NotImplementedException();
+            return true;
         }
     }
 }
