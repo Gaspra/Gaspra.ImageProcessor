@@ -4,13 +4,19 @@
 
 <form id="RequestImage">
     <fieldset>
-        <div class="form-group">
+        <div class="form-group w-50">
             <label for="imageName">Image</label>
-            <input type="file" class="form-control-file" id="imageName" name="imageName" required/>
+            <input type="file" class="form-control-file" id="imageName" name="imageName" required />
             <small class="form-text text-muted">Select an image from the product image folder</small>
         </div>
 
-        <div class="form-group">
+        <div class="form-group w-50">
+            <label for="backgroundColour">Background</label>
+            <input type="color" class="form-control" id="backgroundColour" name="backgroundColour" value="#ffffff" />
+            <small class="form-text text-muted">Select a colour for the images background</small>
+        </div>
+
+        <div class="form-group w-100">
             <label for="height">Height</label>
             <input type="number" class="form-control" id="height" name="height" />
             <label for="width">Width</label>
@@ -18,21 +24,15 @@
             <small class="form-text text-muted">Request a custom resolution for the image selected, leaving both fields blank will return the default size, filling in one field will scale the image</small>
         </div>
 
-        <div class="form-group">
-            <label for="backgroundColour">Background</label>
-            <input type="color" class="form-control" id="backgroundColour" name="backgroundColour" value="#ffffff"/>
-            <small class="form-text text-muted">Select a colour for the images background</small>
-        </div>
-
-        <div class="form-group">
+        <div class="form-group w-50">
             <label for="watermark">Watermark</label>
             <input type="text" class="form-control" id="watermark" name="watermark" />
             <small class="form-text text-muted">Text to watermark the image with</small>
         </div>
 
-        <div class="form-group">
+        <div class="form-group w-50">
             <label for="download">Download</label>
-            <input type="checkbox" class="form-check" id="download" name="download" value="true"/>
+            <input type="checkbox" class="form-check" id="download" name="download" value="true" />
             <label for="imageFormat">Format</label>
             <select id="imageFormat" name="imageFormat">
                 <option value="png" selected="selected">png</option>
@@ -40,7 +40,7 @@
                 <option value="bmp">bmp</option>
                 <option value="gif">gif</option>
             </select>
-            <small class="form-text text-muted">If checked the requested image will save to a new folder in the input directory, the file type will be the one selected above</small>
+            <small class="form-text text-muted">Check to save format on request</small>
         </div>
 
         <input type="submit" value="Request Image" />
@@ -48,36 +48,31 @@
 </form>
 
 <div id="ImagePreview">
+    <div id="ImageUrl">
+    </div>
     <img id="ImageResult" src="" />
 </div>
 
 <script type="text/javascript">
     $(function () {
         $('#RequestImage').submit(function (event) {
+            event.preventDefault();
 
-            var queryString = $('#RequestImage').serialize();
+            var baseUrl = window.location.origin + "/Processor/Image";
+
+            var imageUrl = $('#RequestImage').serialize();
 
             var imagePath = $('form#RequestImage input#imageName')[0].value.split('\\');
 
             var imageName = imagePath[imagePath.length - 1];
 
             if (imageName != "") {
-                queryString = "imageName=" + imageName + "&" + queryString;
+                imageUrl = baseUrl + "?imageName=" + imageName + "&" + imageUrl;
             }
 
-            event.preventDefault();
+            $('#ImageResult').attr('src', imageUrl);
 
-            $.ajax({
-                url: "Processor/Image?" + queryString,
-                type: "get",
-                success: function (result) {
-                    $("#ImageResult").attr('src', "data:image/png;base64,"+result);
-                },
-                error: function (xhr, status, error) {
-                    alert("Couldn't retrieve image: " + error);
-                }
-            });
-
+            $('#ImageUrl').html('<a href="'+imageUrl+'" target="_blank">'+imageUrl+'</a>');
         });
     });
 </script>

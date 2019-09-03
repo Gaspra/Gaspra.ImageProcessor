@@ -68,9 +68,22 @@ input[type="submit"]{
     width: 100% !important;
 }
 
+#RequestImage {
+    background: rgba(0,0,0,0.03);
+}
+
+.form-group {
+    padding: 10px;
+    background:rgba(255,255,255,1);
+    border: 1px solid black;
+    min-height: 130px;
+    float:left;
+    margin-bottom: 4px !important;
+}
+
 #ImagePreview {
     width: 100%;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 650px);
     padding: 12px;
     border: 2px solid rgba(0,0,0,0.2);
     border-bottom-left-radius: 10px;
@@ -79,4 +92,13 @@ input[type="submit"]{
     resize: both;
 }
 
+#ImageUrl {
+    width:100%;
+    background: rgba(0,0,0,0.04);
+    padding: 6px;
+    text-align: center;
+    border-radius: 4px;
+}
+
 #ImageResult { }
+

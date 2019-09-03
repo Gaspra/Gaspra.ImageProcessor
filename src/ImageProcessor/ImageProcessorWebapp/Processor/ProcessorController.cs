@@ -29,7 +29,7 @@ namespace ImageProcessorWebapp.Processor
             return View();
         }
 
-        public string Image()
+        public IActionResult Image()
         {
             /*
                 query string / build image
@@ -74,7 +74,9 @@ namespace ImageProcessorWebapp.Processor
 
                 string base64String = Convert.ToBase64String(imageBytes);
 
-                return base64String;
+                //return Content(base64String, "image/png");
+
+                return base.File(imageBytes, "image/png");
             }
         }
 
