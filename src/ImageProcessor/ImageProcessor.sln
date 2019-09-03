@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessor", "ImageProcessor\ImageProcessor.csproj", "{F27FD1F7-43A3-44E0-8F99-D9CD49EA4022}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessorTests", "ImageProcessor.Tests\ImageProcessorTests.csproj", "{98BAA1E4-33D7-4E41-9480-8958E08C1BB3}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageProcessorWebapp", "ImageProcessorWebapp\ImageProcessorWebapp.csproj", "{FCB276E0-C644-48E8-982D-97C53C40938D}"
 EndProject
 Global
@@ -19,10 +17,6 @@ Global
 		{F27FD1F7-43A3-44E0-8F99-D9CD49EA4022}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F27FD1F7-43A3-44E0-8F99-D9CD49EA4022}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F27FD1F7-43A3-44E0-8F99-D9CD49EA4022}.Release|Any CPU.Build.0 = Release|Any CPU
-		{98BAA1E4-33D7-4E41-9480-8958E08C1BB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{98BAA1E4-33D7-4E41-9480-8958E08C1BB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{98BAA1E4-33D7-4E41-9480-8958E08C1BB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{98BAA1E4-33D7-4E41-9480-8958E08C1BB3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FCB276E0-C644-48E8-982D-97C53C40938D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FCB276E0-C644-48E8-982D-97C53C40938D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCB276E0-C644-48E8-982D-97C53C40938D}.Release|Any CPU.ActiveCfg = Release|Any CPU

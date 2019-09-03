@@ -6,9 +6,15 @@ namespace ImageProcessor.Models
 {
     public class Resolution
     {
-        public int Width { get; set; }
+        public int Width { get; }
 
-        public int Height { get; set; }
+        public int Height { get; }
+
+        public Resolution(int width, int height)
+        {
+            Width = width;
+            Height = height;
+        }
 
         public override bool Equals(object obj)
         {
@@ -28,11 +34,7 @@ namespace ImageProcessor.Models
 
         public static Resolution From(Image<Rgba32> image)
         {
-            return new Resolution()
-            {
-                Width = image.Width,
-                Height = image.Height
-            };
+            return new Resolution(image.Width, image.Height);
         }
     }
 }

@@ -23,7 +23,6 @@ namespace ImageProcessorWebapp
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services
-                .RegisterImageProcessors()
                 .AddSingleton<IProductImages, ProductImages>();
         }
 
