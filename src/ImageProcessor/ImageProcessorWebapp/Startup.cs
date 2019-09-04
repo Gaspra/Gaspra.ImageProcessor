@@ -1,4 +1,6 @@
 using ImageProcessor;
+using ImageProcessor.Caches;
+using ImageProcessor.Layers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +25,12 @@ namespace ImageProcessorWebapp
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services
+                .AddMemoryCache()
+                .AddTransient<IImageLayer, BackgroundLayer>()
+                .AddTransient<IImageLayer, MaltImageLayer>()
+                .AddTransient<IImageLayer, WatermarkLayer>()
+                .AddTransient<IProcessor, ImageProcessor.Processor>()
+                .AddSingleton<IImageCache, ImageCache>()
                 .AddSingleton<IProductImages, ProductImages>();
         }
 

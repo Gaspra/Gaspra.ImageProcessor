@@ -4,24 +4,29 @@ $releaseLocation = "$startLocation\src\ImageProcessor\ImageProcessorWebapp\bin\R
 $productImagesWebLocation = "https://www.masterofmalt.com/external_resources/dev_interview/product_images.zip"
 
 #Publish app
-Write-Host "Publishing ImageProcessorWebapp to: $releaseLocation" -ForegroundColor Magenta
+Write-Host "`n`nPublishing ImageProcessorWebapp to: $releaseLocation `n`n`r" -ForegroundColor Green
 dotnet publish $projectLocation -c Release -r win-x64 --self-contained true
 
 #Ensure product_images exists
-Write-Host "Would you like to download and extract 'product_images' from '$productImagesWebLocation' to '$startLocation\product_images'" -ForegroundColor Magenta
-Write-Host "product_images is roughly 240mb, this will take a few minutes!!" -ForegroundColor Red
-$confirmation = Read-Host "(y/ n)"
+Write-Host "`n`nWould you like to download and extract 'product_images' `n`rFrom --> '$productImagesWebLocation' `n`rTo --> '$releaseLocation\publish\'?" -ForegroundColor Green
+Write-Host "Warning: product_images is roughly 240mb!" -ForegroundColor Red
+$confirmation = Read-Host -Prompt "(y / n)"
+
 if ($confirmation -eq 'y') {
+    Write-Host "`nDownloading silently to: '$releaseLocation\publish\product_images' please wait... `n`rTakes ~2 minutes, go make a cuppa." -ForegroundColor Yellow
+    $ProgressPreference = 'SilentlyContinue'
     Invoke-WebRequest -Uri $productImagesWebLocation -OutFile "$startLocation\product_images.zip"
-    Expand-Archive "$startLocation\product_images.zip" -DestinationPath $startLocation
+    Expand-Archive "$startLocation\product_images.zip" -DestinationPath "$releaseLocation\publish\"
 }
 else
 {
-    Write-Host "Please ensure the product images you wish to use can be found at: '$startLocation\product_images'" -ForegroundColor Magenta
+    Write-Host "`nPlease ensure the product images you wish to use can be found at: '$releaseLocation\publish\product_images'" -ForegroundColor Yellow
 }
 
 #Start app
-Write-Host "Starting ImageProcessorWebapp" -ForegroundColor Green
-Start-Process "$releaseLocation\ImageProcessorWebapp.exe"
+Write-Host "`nStarting ImageProcessorWebapp: $releaseLocation\publish\ImageProcessorWebapp.exe" -ForegroundColor Green
+set-location "$releaseLocation\publish\"
+Start-Process ImageProcessorWebapp.exe
 Start-Process http://localhost:5000
 Set-Location $startLocation
+Read-Host -Prompt "Press any key to exit"

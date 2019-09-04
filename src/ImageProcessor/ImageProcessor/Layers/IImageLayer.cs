@@ -6,6 +6,10 @@ namespace ImageProcessor.Layers
 {
     public interface IImageLayer
     {
-        Image<Rgba32> GenerateLayer(Resolution resolution);
+        Resolution Resolution { get; }
+        int LayerOrder { get; }
+        float Opacity { get; }
+        Image<Rgba32> LayerRender { get; set; }
+        bool BuildFrom(ImageRequest imageRequest);
     }
 }

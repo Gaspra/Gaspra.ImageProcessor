@@ -29,7 +29,8 @@ namespace ImageProcessor.Models
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Width, Height);
+            return HashCode.Combine(
+                typeof(Resolution), Width, Height);
         }
 
         public static Resolution From(Image<Rgba32> image)

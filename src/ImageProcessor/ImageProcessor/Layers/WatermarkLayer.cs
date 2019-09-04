@@ -10,47 +10,53 @@ namespace ImageProcessor.Layers
 {
     public class WatermarkLayer : IImageLayer
     {
-        public string WatermarkText { get; }
+        public Resolution Resolution { get; set; }
+        public int LayerOrder => 2;
+        public float Opacity => 0.6f;
+        public string WatermarkText { get; set; }
 
-        public WatermarkLayer(string watermarkText)
+        private Image<Rgba32> layerRender = null;
+        public Image<Rgba32> LayerRender
         {
-            WatermarkText = watermarkText;
-        }
+            get
+            {
+                if (layerRender == null)
+                {
+                    layerRender = GenerateLayer();
+                }
 
-        public override bool Equals(object obj)
-        {
-            if (obj == null || GetType() != obj.GetType()) return false;
-
-            WatermarkLayer watermarkLayer = (WatermarkLayer)obj;
-
-            return
-                watermarkLayer.WatermarkText.Equals(WatermarkText);
+                return layerRender;
+            }
+            set
+            {
+                layerRender = value;
+            }
         }
 
         public override int GetHashCode()
         {
             return HashCode
-                .Combine(WatermarkText);
+                .Combine(typeof(WatermarkLayer), WatermarkText, Resolution.GetHashCode());
         }
 
-        public Image<Rgba32> GenerateLayer(Resolution resolution)
+        private Image<Rgba32> GenerateLayer()
         {
             var imageLayer = new Image<Rgba32>(
-                resolution.Width,
-                resolution.Height);
+                Resolution.Width,
+                Resolution.Height);
 
             var font = SystemFonts.CreateFont("Arial", 39, FontStyle.Regular);
 
-            float targetWidth = resolution.Width - (8);
-            float targetHeight = resolution.Height - (8);
+            float targetWidth = Resolution.Width - (8);
+            float targetHeight = Resolution.Height - (8);
 
             SizeF size = TextMeasurer.Measure(WatermarkText, new RendererOptions(font));
 
-            float scalingFactor = Math.Min(resolution.Width / size.Width, resolution.Height / size.Height);
+            float scalingFactor = Math.Min(Resolution.Width / size.Width, Resolution.Height / size.Height);
 
             Font scaledFont = new Font(font, scalingFactor * font.Size);
 
-            var center = new PointF(resolution.Width / 2, resolution.Height / 2);
+            var center = new PointF(Resolution.Width / 2, Resolution.Height / 2);
             var textGraphicOptions = new TextGraphicsOptions(true)
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -59,6 +65,19 @@ namespace ImageProcessor.Layers
             imageLayer.Mutate(i => i.DrawText(textGraphicOptions, WatermarkText, scaledFont, Rgba32.RebeccaPurple, center));
 
             return imageLayer;
+        }
+
+        public bool BuildFrom(ImageRequest imageRequest)
+        {
+            if(string.IsNullOrWhiteSpace(imageRequest.WatermarkText))
+            {
+                return false;
+            }
+
+            Resolution = imageRequest.Resolution;
+            WatermarkText = imageRequest.WatermarkText;
+
+            return true;
         }
     }
 }

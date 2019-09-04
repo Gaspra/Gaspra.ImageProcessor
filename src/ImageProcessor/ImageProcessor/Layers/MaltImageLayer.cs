@@ -8,41 +8,52 @@ namespace ImageProcessor.Layers
 {
     public class MaltImageLayer : IImageLayer
     {
-        public string ImagePath { get; }
+        public Resolution Resolution { get; set; }
+        public int LayerOrder => 1;
+        public float Opacity => 1;
+        public string ImagePath { get; set; }
 
-        public MaltImageLayer(string imagePath)
+        private Image<Rgba32> layerRender = null;
+        public Image<Rgba32> LayerRender
         {
-            ImagePath = imagePath;
-        }
+            get
+            {
+                if (layerRender == null)
+                {
+                    layerRender = Image.Load(ImagePath);
 
-        public override bool Equals(object obj)
-        {
-            if (obj == null || GetType() != obj.GetType()) return false;
+                    if (!Resolution.From(layerRender).Equals(Resolution))
+                    {
+                        layerRender.Mutate(i =>
+                            i.Resize(Resolution.Width, Resolution.Height));
+                    }
+                }
 
-            MaltImageLayer maltImageLayer = (MaltImageLayer)obj;
-
-            return
-                maltImageLayer.ImagePath.Equals(ImagePath);
+                return layerRender;
+            }
+            set
+            {
+                layerRender = value;
+            }
         }
 
         public override int GetHashCode()
         {
             return HashCode
-                .Combine(ImagePath);
+                .Combine(typeof(MaltImageLayer), ImagePath, Resolution.GetHashCode());
         }
 
-        public Image<Rgba32> GenerateLayer(Resolution resolution)
+        public bool BuildFrom(ImageRequest imageRequest)
         {
-            var imageLayer = Image.Load(ImagePath);
-
-            if(!imageLayer.Width.Equals(resolution.Width) &&
-                !imageLayer.Height.Equals(resolution.Height))
+            if (string.IsNullOrWhiteSpace(imageRequest.ImageLocation))
             {
-                imageLayer.Mutate(i =>
-                    i.Resize(resolution.Width, resolution.Height));
+                return false;
             }
 
-            return imageLayer;
+            Resolution = imageRequest.Resolution;
+            ImagePath = imageRequest.ImageLocation;
+
+            return true;
         }
     }
 }

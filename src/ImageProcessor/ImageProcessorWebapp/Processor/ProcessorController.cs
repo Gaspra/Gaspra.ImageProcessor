@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Web;
+using ImageProcessor;
 using ImageProcessor.Extensions;
 using ImageProcessor.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,17 @@ namespace ImageProcessorWebapp.Processor
     public class ProcessorController : Controller
     {
         private readonly IProductImages ProductImages;
+        private readonly IProcessor Processor;
 
         public ProcessorController(
-            IProductImages productImages)
+            IProductImages productImages,
+            IProcessor processor)
         {
             ProductImages = productImages ??
                 throw new ArgumentNullException(nameof(productImages));
+
+            Processor = processor ??
+                throw new ArgumentNullException(nameof(processor));
         }
 
         public IActionResult Index()
@@ -27,10 +33,6 @@ namespace ImageProcessorWebapp.Processor
             return View();
         }
 
-        /*
-            todo;
-                tidy up!
-        */
         public IActionResult Image()
         {
             /*
@@ -52,7 +54,7 @@ namespace ImageProcessorWebapp.Processor
 
                 requestDictionary.TryGetValue("backgroundcolour", out var backgroundColour);
 
-                var maltImage = new MaltImage(
+                var imageRequest = new ImageRequest(
                     imagePath,
                     watermark,
                     backgroundColour,
@@ -60,7 +62,7 @@ namespace ImageProcessorWebapp.Processor
                     height
                     );
 
-                var renderedImage = maltImage.ProcessImage();
+                var renderedImage = Processor.Execute(imageRequest);
 
                 /*
                     save image to disk

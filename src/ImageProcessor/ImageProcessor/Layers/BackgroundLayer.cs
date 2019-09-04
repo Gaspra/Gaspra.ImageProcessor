@@ -8,39 +8,51 @@ namespace ImageProcessor.Layers
 {
     public class BackgroundLayer : IImageLayer
     {
-        public string HexColourCode { get; }
+        public Resolution Resolution { get; set;  }
+        public int LayerOrder => 0;
+        public float Opacity => 1;
+        public string HexColourCode { get; set; }
 
-        public BackgroundLayer(string hexColourCode)
+        private Image<Rgba32> layerRender = null;
+        public Image<Rgba32> LayerRender
         {
-            HexColourCode = hexColourCode;
-        }
+            get
+            {
+                if (layerRender == null)
+                {
+                    layerRender = new Image<Rgba32>(
+                        Resolution.Width,
+                        Resolution.Height);
 
-        public override bool Equals(object obj)
-        {
-            if (obj == null || GetType() != obj.GetType()) return false;
+                    layerRender.Mutate(i => i
+                        .Fill(Rgba32.FromHex(HexColourCode)));
+                }
 
-            BackgroundLayer backgroundLayer = (BackgroundLayer)obj;
-
-            return
-                backgroundLayer.HexColourCode.Equals(HexColourCode);
+                return layerRender;
+            }
+            set
+            {
+                layerRender = value;
+            }
         }
 
         public override int GetHashCode()
         {
             return HashCode
-                .Combine(HexColourCode);
+                .Combine(typeof(BackgroundLayer), HexColourCode, Resolution.GetHashCode());
         }
 
-        public Image<Rgba32> GenerateLayer(Resolution resolution)
+        public bool BuildFrom(ImageRequest imageRequest)
         {
-            var imageLayer = new Image<Rgba32>(
-                resolution.Width,
-                resolution.Height);
+            if(string.IsNullOrWhiteSpace(imageRequest.BackgroundHexColourCode))
+            {
+                return false;
+            }
 
-            imageLayer.Mutate(i => i
-                .Fill(Rgba32.FromHex(HexColourCode)));
+            Resolution = imageRequest.Resolution;
+            HexColourCode = imageRequest.BackgroundHexColourCode;
 
-            return imageLayer;
+            return true;
         }
     }
 }
