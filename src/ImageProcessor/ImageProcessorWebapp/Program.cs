@@ -14,9 +14,11 @@ namespace ImageProcessorWebapp
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost
                 .CreateDefaultBuilder(args)
+                .UseUrls("http://*:16533")
                 .ConfigureLogging((logging) =>
                 {
                     logging
+                        .AddSeq("http://localhost:5341")
                         .AddConsole();
                 })
                 .UseStartup<Startup>();

@@ -11,6 +11,9 @@ namespace ImageProcessor.Models
 
         public Resolution(int width, int height)
         {
+            if (width > 3000) width = 3000;
+            if (height > 3000) height = 3000;
+
             Width = width;
             Height = height;
         }
