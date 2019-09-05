@@ -4,6 +4,7 @@ using System.IO;
 using System.Web;
 using ImageProcessor;
 using ImageProcessor.Models;
+using ImageProcessorWebapp.Extensions;
 using ImageProcessorWebapp.Models;
 using ImageProcessorWebapp.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -58,6 +59,8 @@ namespace ImageProcessorWebapp.Processor
         {
             try
             {
+                logger.ImageRequest(Request);
+
                 var requestDictionary = QueryStringToDictionary(Request.QueryString.ToString());
 
                 var imageRequest = BuildImageRequest(requestDictionary);
@@ -89,7 +92,7 @@ namespace ImageProcessorWebapp.Processor
             }
             catch (Exception ex)
             {
-                logger.LogError("Unable to get image due to: {ex}", ex);
+                logger.BadImageRequest(Request, ex);
 
                 if (hostingEnvironment.IsDevelopment())
                 {

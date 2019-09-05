@@ -47,7 +47,7 @@ namespace ImageProcessor.Caches
 
                 memoryCache.Set(completeImageKey, completeImageCacheEntry, cacheEntryOptions);
 
-                logger.AddingItemToCache(nameof(maltImage), completeImageKey);
+                logger.AddingItemToCache(nameof(maltImage), completeImageKey, maltImage);
             }
             else
             {
@@ -74,7 +74,7 @@ namespace ImageProcessor.Caches
 
                 memoryCache.Set(imageLayerKey, imageLayerCacheEntry, cacheEntryOptions);
 
-                logger.AddingItemToCache(nameof(imageLayer), imageLayerKey);
+                logger.AddingItemToCache(nameof(imageLayer), imageLayerKey, imageLayer);
             }
             else
             {

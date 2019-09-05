@@ -16,7 +16,8 @@ namespace ImageProcessorWebapp
                 .CreateDefaultBuilder(args)
                 .ConfigureLogging((logging) =>
                 {
-                    logging.AddConsole();
+                    logging
+                        .AddConsole();
                 })
                 .UseStartup<Startup>();
     }
