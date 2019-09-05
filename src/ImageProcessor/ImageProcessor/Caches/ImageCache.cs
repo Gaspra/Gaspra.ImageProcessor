@@ -2,35 +2,34 @@
 using ImageProcessor.Layers;
 using ImageProcessor.Models;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ImageProcessor.Caches
 {
     public class ImageCache : IImageCache
     {
-        private readonly ILogger Logger;
-        private readonly IMemoryCache MemoryCache;
+        private readonly ILogger logger;
+        private readonly IMemoryCache memoryCache;
+        private readonly IConfiguration configuration;
         private readonly string completeImageCacheKeyPrefix = "CompleteImage_";
         private readonly string imageLayerCacheKeyPrefix = "ImageLayer_";
 
-        public ImageCache(ILogger<ImageCache> logger, IMemoryCache memoryCache)
+        public ImageCache(ILogger<ImageCache> logger, IMemoryCache memoryCache, IConfiguration configuration)
         {
-            Logger = logger;
-            MemoryCache = memoryCache;
+            this.logger = logger;
+            this.memoryCache = memoryCache;
+            this.configuration = configuration;
         }
 
         public Image<Rgba32> TryGetImage(MaltImage maltImage)
         {
-            Logger.LogInformation($"Trying to get image with hash: {maltImage.GetHashCode()} from the cache");
-
             var completeImageKey = $"{completeImageCacheKeyPrefix}{maltImage.GetHashCode()}";
 
-            if (!MemoryCache.TryGetValue(completeImageKey, out Image<Rgba32> completeImageCacheEntry))
+            if (!memoryCache.TryGetValue(completeImageKey, out Image<Rgba32> completeImageCacheEntry))
             {
                 foreach(var layer in maltImage.ImageLayers)
                 {
@@ -40,15 +39,19 @@ namespace ImageProcessor.Caches
                 completeImageCacheEntry = maltImage.ImageLayers.CombineLayers();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromSeconds(60));
+                    .SetSize(1)
+                    .SetSlidingExpiration(
+                        TimeSpan.FromSeconds(
+                            int.Parse(
+                                configuration.GetSection("CacheOptions")["ImageExpiry"])));
 
-                MemoryCache.Set(completeImageKey, completeImageCacheEntry, cacheEntryOptions);
+                memoryCache.Set(completeImageKey, completeImageCacheEntry, cacheEntryOptions);
 
-                Logger.LogInformation($"Added image with hash: {maltImage.GetHashCode()} to the cache");
+                logger.AddingItemToCache(nameof(maltImage), completeImageKey);
             }
             else
             {
-                Logger.LogInformation($"Retrieved from the cache! malt image hash: {maltImage.GetHashCode()}");
+                logger.RetrievedItemFromCache(completeImageKey);
             }
 
             return completeImageCacheEntry;
@@ -58,22 +61,24 @@ namespace ImageProcessor.Caches
         {
             var imageLayerKey = $"{imageLayerCacheKeyPrefix}{imageLayer.GetHashCode()}";
 
-            Logger.LogInformation($"Trying to get image layer of type {imageLayer.GetType()} with hash: {imageLayer.GetHashCode()} from the cache");
-
-            if (!MemoryCache.TryGetValue(imageLayerKey, out Image<Rgba32> imageLayerCacheEntry))
+            if (!memoryCache.TryGetValue(imageLayerKey, out Image<Rgba32> imageLayerCacheEntry))
             {
                 imageLayerCacheEntry = imageLayer.LayerRender;
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromSeconds(60));
+                    .SetSize(1)
+                    .SetSlidingExpiration(
+                        TimeSpan.FromSeconds(
+                            int.Parse(
+                                configuration.GetSection("CacheOptions")["LayerExpiry"])));
 
-                MemoryCache.Set(imageLayerKey, imageLayerCacheEntry, cacheEntryOptions);
+                memoryCache.Set(imageLayerKey, imageLayerCacheEntry, cacheEntryOptions);
 
-                Logger.LogInformation($"Added image layer of type {imageLayer.GetType()} with hash: {imageLayer.GetHashCode()} to the cache");
+                logger.AddingItemToCache(nameof(imageLayer), imageLayerKey);
             }
             else
             {
-                Logger.LogInformation($"Retrieved from the cache! Image layer of type {imageLayer.GetType()} with hash: {imageLayer.GetHashCode()}");
+                logger.RetrievedItemFromCache(imageLayerKey);
             }
 
             return imageLayerCacheEntry;

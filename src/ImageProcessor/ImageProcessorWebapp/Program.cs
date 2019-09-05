@@ -12,7 +12,8 @@ namespace ImageProcessorWebapp
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+            WebHost
+                .CreateDefaultBuilder(args)
                 .ConfigureLogging((logging) =>
                 {
                     logging.AddConsole();

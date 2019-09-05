@@ -7,7 +7,6 @@ namespace ImageProcessor.Models
     public class Resolution
     {
         public int Width { get; }
-
         public int Height { get; }
 
         public Resolution(int width, int height)

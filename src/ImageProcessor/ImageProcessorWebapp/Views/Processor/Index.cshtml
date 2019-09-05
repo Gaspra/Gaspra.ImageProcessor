@@ -1,17 +1,17 @@
-﻿@{
+﻿@model  ImageProcessorWebapp.Models.ProductImagesModel
+@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-@*
-    todo;
-        tidy up!
-*@
 
 <form id="RequestImage">
     <fieldset>
         <div class="form-group w-50">
             <label for="imageName">Image</label>
-            <input type="file" class="form-control-file" id="imageName" name="imageName" required />
+            @Html.DropDownList(
+                "imageName",
+                new SelectList(Model.Filenames.Select(f => new { Value = f, Text = f }),
+                "Value",
+                "Text"))
             <small class="form-text text-muted">Select an image from the product image folder</small>
         </div>
 
@@ -65,19 +65,11 @@
 
             var baseUrl = window.location.origin + "/Processor/Image/";
 
-            var imageUrl = $('#RequestImage').serialize();
+            var imageUrl = "?"+$('#RequestImage').serialize();
 
-            var imagePath = $('form#RequestImage input#imageName')[0].value.split('\\');
+            $('#ImageResult').attr('src', baseUrl + imageUrl);
 
-            var imageName = imagePath[imagePath.length - 1];
-
-            if (imageName != "") {
-                imageUrl = baseUrl + "?imageName=" + imageName + "&" + imageUrl;
-            }
-
-            $('#ImageResult').attr('src', imageUrl);
-
-            $('#ImageUrl').html('<a href="'+imageUrl+'" target="_blank">'+imageUrl+'</a>');
+            $('#ImageUrl').html('<a href="'+baseUrl + imageUrl+'" target="_blank">'+baseUrl + imageUrl+'</a>');
         });
     });
 </script>

@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using ImageProcessor;
-using ImageProcessor.Extensions;
 using ImageProcessor.Models;
+using ImageProcessorWebapp.Models;
+using ImageProcessorWebapp.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Bmp;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -14,63 +21,56 @@ namespace ImageProcessorWebapp.Processor
 {
     public class ProcessorController : Controller
     {
-        private readonly IProductImages ProductImages;
-        private readonly IProcessor Processor;
+        private readonly ILogger logger;
+        private readonly IProductImages productImages;
+        private readonly IProcessor processor;
+        private readonly IHostingEnvironment hostingEnvironment;
 
         public ProcessorController(
+            ILogger<ProcessorController> logger,
             IProductImages productImages,
-            IProcessor processor)
+            IProcessor processor,
+            IHostingEnvironment hostingEnvironment)
         {
-            ProductImages = productImages ??
+            this.logger = logger;
+
+            this.productImages = productImages ??
                 throw new ArgumentNullException(nameof(productImages));
 
-            Processor = processor ??
+            this.processor = processor ??
                 throw new ArgumentNullException(nameof(processor));
+
+            this.hostingEnvironment = hostingEnvironment ??
+                throw new ArgumentNullException(nameof(hostingEnvironment));
         }
 
         public IActionResult Index()
         {
-            return View();
+            var model = new ProductImagesModel
+            {
+                Filenames = productImages.ImageList()
+            };
+
+            return View(model);
         }
 
         public IActionResult Image()
         {
-            /*
-                query string / build image
-            */
-            var requestDictionary = QueryStringToDictionary(Request.QueryString.ToString());
-
-            var imagePath = ProductImages.GetImagePathFromName(requestDictionary["imagename"]);
-
-            if(!string.IsNullOrWhiteSpace(imagePath))
+            try
             {
-                requestDictionary.TryGetValue("height", out var heightValue);
-                int.TryParse(heightValue, out var height);
+                var requestDictionary = QueryStringToDictionary(Request.QueryString.ToString());
 
-                requestDictionary.TryGetValue("width", out var widthValue);
-                int.TryParse(widthValue, out var width);
+                var imageRequest = BuildImageRequest(requestDictionary);
 
-                requestDictionary.TryGetValue("watermark", out var watermark);
-
-                requestDictionary.TryGetValue("backgroundcolour", out var backgroundColour);
-
-                var imageRequest = new ImageRequest(
-                    imagePath,
-                    watermark,
-                    backgroundColour,
-                    width,
-                    height
-                    );
-
-                var renderedImage = Processor.Execute(imageRequest);
+                var renderedImage = processor.Execute(imageRequest);
 
                 /*
-                    save image to disk
+                    save image to disk if download requested
                 */
                 if (requestDictionary.ContainsKey("download") &&
                     bool.Parse(requestDictionary["download"]))
                 {
-                    SaveImage(renderedImage, $"{ProductImages.GetImageDirectory()}/output", Guid.NewGuid().ToString(), requestDictionary["imageformat"]);
+                    SaveImage(renderedImage, $"{productImages.ImageDirectory()}/output", Guid.NewGuid().ToString(), requestDictionary["imageformat"]);
                 }
 
                 /*
@@ -78,17 +78,53 @@ namespace ImageProcessorWebapp.Processor
                 */
                 using (MemoryStream m = new MemoryStream())
                 {
-                    renderedImage.Save(m, new PngEncoder());
+                    renderedImage.Save(m, ImageEncoderForFormat(requestDictionary["imageformat"]));
 
                     byte[] imageBytes = m.ToArray();
 
                     string base64String = Convert.ToBase64String(imageBytes);
 
-                    return base.File(imageBytes, "image/png");
+                    return base.File(imageBytes, $"image/{requestDictionary["imageformat"]}");
                 }
             }
+            catch (Exception ex)
+            {
+                logger.LogError("Unable to get image due to: {ex}", ex);
 
-            return BadRequest();
+                if (hostingEnvironment.IsDevelopment())
+                {
+                    return BadRequest(ex);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+        }
+
+        private ImageRequest BuildImageRequest(IDictionary<string,string> requestDictionary)
+        {
+            var imagePath = $"{productImages.ImageDirectory()}{requestDictionary["imagename"]}";
+
+            requestDictionary.TryGetValue("height", out var heightValue);
+            int.TryParse(heightValue, out var height);
+
+            requestDictionary.TryGetValue("width", out var widthValue);
+            int.TryParse(widthValue, out var width);
+
+            requestDictionary.TryGetValue("watermark", out var watermark);
+
+            requestDictionary.TryGetValue("backgroundcolour", out var backgroundColour);
+
+            var imageRequest = new ImageRequest(
+                imagePath,
+                watermark,
+                backgroundColour,
+                width,
+                height
+                );
+
+            return imageRequest;
         }
 
         private IDictionary<string, string> QueryStringToDictionary(string queryString)
@@ -105,11 +141,14 @@ namespace ImageProcessorWebapp.Processor
             {
                 var values = splitPart.Split('=');
 
-                var key = values[0].ToLower();
+                if (values.Length.Equals(2))
+                {
+                    var key = values[0].ToLower();
 
-                var value = values[1];
+                    var value = values[1];
 
-                requestDictionary.Add(key, value);
+                    requestDictionary.Add(key, value);
+                }
             }
 
             return requestDictionary;
@@ -121,7 +160,30 @@ namespace ImageProcessorWebapp.Processor
 
             var sanitizedFileName = Path.GetFileNameWithoutExtension(fileName);
 
+            logger.LogDebug($"Saving image to: {outputDirectory}/{sanitizedFileName}.{format}");
+
             image.Save($"{outputDirectory}/{sanitizedFileName}.{format}");
+        }
+
+        private IImageEncoder ImageEncoderForFormat(string format)
+        {
+            switch(format.ToLower())
+            {
+                case "png":
+                    return new PngEncoder();
+
+                case "jpeg":
+                    return new JpegEncoder();
+
+                case "bmp":
+                    return new BmpEncoder();
+
+                case "gif":
+                    return new GifEncoder();
+
+                default:
+                    throw new ArgumentException(nameof(format));
+            }
         }
     }
 }
