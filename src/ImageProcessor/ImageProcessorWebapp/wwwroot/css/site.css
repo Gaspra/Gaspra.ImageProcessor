@@ -76,7 +76,7 @@ input[type="submit"]{
     padding: 10px;
     background:rgba(255,255,255,1);
     border: 1px solid black;
-    min-height: 130px;
+    min-height: 144px;
     float:left;
     margin-bottom: 4px !important;
 }

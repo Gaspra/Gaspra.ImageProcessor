@@ -20,7 +20,8 @@ if ($confirmation -eq 'y') {
 }
 else
 {
-    Write-Host "`nPlease ensure the product images you wish to use can be found at: '$releaseLocation\publish\product_images'" -ForegroundColor Yellow
+    Write-Host "`nPlease ensure the product images you wish to use can be found at (the web app requires this folder to exist): '$releaseLocation\publish\product_images'" -ForegroundColor Yellow
+	Read-Host -Prompt "Press any key to continue..."
 }
 
 #Start app
